@@ -76,8 +76,9 @@ For players intending to build the most UPS efficient bases possible, playing en
 
 Inserters are the most UPS costly component of Factorio's logistical puzzle, not strictly because of their individual cost, but because they are so ubiquitous in every base. Moving items in and out of assemblers, trains, chests, silos, and any other building is almost exclusively performed by inserters. In addition to their frequency of use, inserters have complex movement, activation behaviors, and conditions, making them more expensive to simulate than some other Factorio entities. As a result, the most UPS optimal bases reduce the number of necessary inserters as much as possible, or more specifically, *the amount of time inserters are active* as much as possible. 
 
-TODO: move
-If an inserter is not currently moving items, it is determined inactive and "sleeps", entering a UPS-efficient state until it is reactivated by some other game event.
+An inserter is considered active when it is swinging, either when it is moving items in its hand or returning to its resting position. Under most circumstances*, an inserter that is not moving will *"sleep"*, entering a UPS-efficient state until it is reactivated by some other game event. Because sleeping machinery consumes less UPS than active ones, its possible that having more inserters that are more frequently idle may be more performant than less inserters who are awake for longer. (TODO: is that true?)
+
+*Inserters will sleep when their target is a rail, a full chest, a saturated non-moving belt, or a saturated machine. They will be awake if the target is a saturated moving belt. They will also awake if the target is a lab and their input is a moving belt, regardless of whether or not the lab itself is saturated with items.
 
 #### Inserter Count
 
@@ -99,10 +100,7 @@ The most natural way to reduce inserter thrashing is to simply produce more mate
 
 ![example video of thrashing on the left, and backpressure on the right](TODO)
 
-In addition to the benefits associated with keeping inserter swings efficient as possible, designing a production line in this manner also allows the majority of machinery to sleep.
-An inserter is considered "inactive" or "sleeping" only if it has no current job. For example, an inserter that has picked up items and is holding them over a chest that won't accept them is still active, even though it's not moving it's arm.
-
-Direct insertion is also particular UPS efficient in combination with something called "backpressure", or the idea that certain factories need to wait for a machine to work.
+In addition to the benefits associated with keeping inserter swings efficient as possible, designing a production line in this manner also allows not only inserters to sleep as much as possible, but also all other machinery as well.
 
 "Back pressure is when supply always exceeds demand so that when an inserter picks stuff up it always gets max items"
 
@@ -124,8 +122,8 @@ Not all production steps benefit from inserter clocking.
 * If you don't want to use Direct Insertion, avoid moving items between logistics types. If you want to use belts, use *only* belts; if you want to use trains, use *only* trains. Avoid moving items from trains onto belts, or from belts onto trains; doing this is essentially redundant. You can use bots as well, but read their section below for caveats.
 * Always use the fastest inserter possible with the highest stack size possible, *if* it will reduce the total amount of time that the inserter will remain active.
 * Always employ backpressure wherever possible. This allows for not just inserters, but *all* machinery to sleep as frequently as possible, improving UPS. In addition, this has the benefit of making inserters pick up their maximum stack size of items when swinging, forcing them to use as few swings as possible to transfer the amount of items needed.
-* [Inserter clocking](https://www.reddit.com/r/technicalfactorio/comments/ju2ngg/inserter_clocking_tutorial/) can be used to force inserters to pick up their maximum stack size in circumstances where natural backpressure is infeasible. Benchmarks must be made to verify that the additional overhead of the clock does not exceed the UPS gain from fewer inserter swings. Users should also be careful when building the clocks themselves, as having them improperly constructed can exacerbate their UPS overhead.
-* Because inserters are the most important design constraint in regards to a base's final UPS, many of the subsequent optimization strategies in subsequent sections will be entirely just to reduce the amount of time inserters are active. This should drive home exactly how important inserters are when optimizing for UPS in Factorio.
+* [Inserter clocking](https://www.reddit.com/r/technicalfactorio/comments/ju2ngg/inserter_clocking_tutorial/) can be used to force inserters to pick up their maximum stack size in circumstances where natural backpressure is infeasible. Benchmarks must be made to verify that the additional overhead of the timing circuit does not exceed the UPS gain from fewer inserter swings. Users should also be careful when building the clocks themselves, as having them improperly constructed can exacerbate their UPS overhead.
+* Because inserters are the most important design constraint in regards to a base's final UPS, many of the subsequent optimization strategies in following sections will be entirely just to reduce the amount of time inserters are active. This should drive home exactly how important inserters are when optimizing for UPS in Factorio.
 
 ### 4. Fluid Networks
 
