@@ -15,7 +15,7 @@ For figuring out what specific components of your base are consuming more time t
 
 This article is not intended to be a prescriptive tutorial on how you should build your factory. UPS efficiency is simply another factor to optimize your designs around, similar to speed, space efficiency, resource cost, power consumption, simplicity, robustness, beauty, and so forth. The content provided here is simply to illustrate how to build the most UPS efficient factory possible; whether or not you abide by these rules (or which rules you choose to abide by) are ultimately up to the player. Playing with biters on will always be less UPS efficient than playing with biters off, but that doesn't mean you can't play with biters if you want, and it also doesn't mean you can't improve your UPS via other means.
 
-This article is not intended to provide advice for the average playthrough, because as long as your computer meets Factorio's minimum specs, the average Factorio playthrough has no need for performance optimizations. Factorio's mechanics are already highly optimized, and it is exceedingly rare for performance issues to arise before launching the first rocket. The content in this article is instead directed at users who wish to [megabase](https://wiki.factorio.com/Glossary#M), play large overhaul modpacks where the average base size is significantly larger than vanilla, or are running Factorio on hardware which lies below Factorio's recommended minimum.
+This article is not intended to provide advice for the average playthrough, because as long as your computer meets Factorio's minimum specs, the average Factorio playthrough has no need for performance optimizations. Factorio's mechanics are already highly optimized, and it is exceedingly rare for performance issues to arise before launching the first rocket. The content in this article is instead directed at users who wish to [megabase](https://wiki.factorio.com/Glossary#M), play large overhaul modpacks where the average base size is significantly larger than vanilla, or are running on hardware which lies below Factorio's recommended minimum.
 
 This article is intended to be a general summary of all of the information and testing recorded and aggregated thus far related to keeping UPS as high as possible. **It is not (necessarily) a list of items that, if you fix, will make your game run better.** The UPS of a build or base is not a uniform measurement of a particular build's hardware efficiency, since there are many factors which influence UPS. If Build A has a higher UPS than Build B, then:
 
@@ -72,49 +72,51 @@ For players intending to build the most UPS efficient bases possible, playing en
 * Remove all biters on the map, or as many as can reasonably be expected.
 * Keep your pollution cloud small to avoid populating new chunks, and to prevent biter aggravation and attack parties.
 
-### 3. Inserters
+### 3. Backpressure
 
-Inserters are the most UPS costly component of Factorio's logistical puzzle, not strictly because of their individual cost, but because they are so ubiquitous in every base. Moving items in and out of assemblers, trains, chests, silos, and any other building is almost exclusively performed by inserters. In addition to their frequency of use, inserters have complex movement, activation behaviors, and conditions, making them more expensive to simulate than some other Factorio entities. As a result, the most UPS optimal bases reduce the number of necessary inserters as much as possible, or more specifically, *the amount of time inserters are active* as much as possible. 
+**Backpressure** is the act of consuming less material than you produce, such that your inputs are always saturated.
 
-An inserter is considered active when it is swinging, either when it is moving items in its hand or returning to its resting position. Under most circumstances*, an inserter that is not moving will *"sleep"*, entering a UPS-efficient state until it is reactivated by some other game event. Because sleeping machinery consumes less UPS than active ones, its possible that having more inserters that are more frequently idle may be more performant than less inserters who are awake for longer. (TODO: is that true?)
+High mining productivity is necessary towards this goal.
 
-*Inserters will sleep when their target is a rail, a full chest, a saturated non-moving belt, or a saturated machine. They will be awake if the target is a saturated moving belt. They will also awake if the target is a lab and their input is a moving belt, regardless of whether or not the lab itself is saturated with items.
+Splitters become useless.
 
-#### Inserter Count
+![comparison of production line wakeup info on 2 identical designs, one with backpressure and one without](TODO)
+
+### 4. Inserters
+
+Inserters are the most UPS costly component of Factorio's logistical puzzle, not strictly because of their individual cost, but because they are so ubiquitous in every base. Moving items in and out of assemblers, trains, chests, silos, and any other building is almost exclusively performed by inserters. In addition to their frequency of use, inserters have complex movement, activation behaviors, and conditions, making them more expensive to simulate than some other Factorio entities. As a result, the most UPS optimal bases reduce the number of necessary inserters as much as possible, or more specifically, *the amount of time inserters are moving* as much as possible. 
 
 The simplest way to optimize inserters in your base is to simply remove ones that are unnecessary. Consider the following image, which is a breakdown of logistic steps in a "City Block" base (pictured top) and a Direct Insertion setup (pictured bottom):
 
 ![img](https://raw.githubusercontent.com/flameSla/Factorio-The-impact-of-city-blocks-on-UPS/main/img/pic1.png)
 
-Notice that even though the City Block design is much larger, the actual number of production machines (drills, furnaces, assemblers) are identical between the two designs; 90% of the additional space is just for train loading/unloading and the belt balancers. On the top, ore is mined onto a belt, which is then put onto a train, which is then taken out of the train and put onto another belt, which is then put into an electric furnace. On the bottom, ore is mined onto a belt, which is then put into an electric furnace. The bottom design does the exact same thing as the top, but with fewer inserters, over a smaller area, and eliminates the cost of train transport entirely.
+Notice that even though the City Block design is much larger, the actual number of production machines (drills, furnaces, assemblers) are identical between the two designs; 90% of the additional space is just for train loading/unloading and the belt balancers. On the top, ore is mined onto a belt, which is then put onto a train, which is then taken out of the train and put onto another belt, which is then put into an electric furnace. On the bottom, ore is mined onto a belt, which is then put into an electric furnace. The bottom design does the exact same thing as the top, but with fewer inserters, over a smaller area, and eliminates the performance cost of train transport entirely.
 
-Note also that in this particular example the City Block design uses fast inserters rather than bulk inserters, meaning that the fast inserter will have to swing more times (and remain active for longer) to move the same amount of items as the bulk inserter. Because inserters cost much more UPS when they are active, using inserters with large stack sizes is almost always better than using inserters with smaller ones. Typically, the only exception to this is when the stack size of the item being transferred is less than the fast inserter's stack size; in this case both fast inserters would perform the same as bulk inserters, because both would swing the same number of times.
+Aside from simply removing unnecessary item transfers, always prefer using inserters with the largest stack size and swing speed available, as this results in the most items transferred for the least amount of time moving. In the example above, the City Block design uses fast inserters instead of bulk inserters, meaning that the fast inserter will have to swing more times (and remain active for longer) to move the same amount of items compared to a bulk inserter. Using inserters with large stack sizes is almost always better than using inserters with smaller ones - the only exception to this is when the stack size of the item being transferred is less than the stack size of both inserters. A fast inserter will consume an equal amount UPS to a bulk inserter when transferring [satellites](https://wiki.factorio.com/Satellite), because both can only hold one satellite at a time and they swing at the same rate.
 
-It should be noted that the example above is somewhat contrived, and is purely for illustration. City-block designs are useful for their modularity and ease of expansion, but because of their overreliance on item transfers between logistics types and their excessive use inserters they're far from UPS optimal. A city-block base that uses all other tricks and best-practiced defined on this article will *never* be more UPS optimized than a base that uses a simpler method of item logistics, due to how important the efficiency of item transport is for the final UPS of a base.
+It should be noted that this example is purely for illustration. City-block designs are useful for their modularity and ease of expansion, but because of their overreliance on item transfers between logistics types and their excessive use inserters, they're far from UPS optimal. A city-block base that uses all other tricks and best-practiced defined on this article will *never* be more UPS optimized than a base that uses a simpler method of item logistics, due to how important the efficiency of item transport is for the final UPS of a base.
 
-#### Backpressure
+In parallel to decreasing the amount of time inserters are active, ensuring an inserter's swing *efficiency* is also of utmost importance. Left to their own devices, inserters have a tendency to swing more often than is needed, hurting UPS. A bulk inserter with a stack size of 12 might only grab 1 item from an assembling machine before deciding to swing, causing it to swing 12 times as much as actually necessary. This concept is typically referred to as inserter *"thrashing"*, after the rapid, undesirable movements that affected inserters make.
 
-Because the name of the game is reducing inserter activity, ensuring an inserter's efficiency is also of utmost importance. Left to their own devices, inserters have a tendency to swing more often than is needed, hurting UPS. A bulk inserter with a stack size of 12 might only grab 4 items from an assembling machine before deciding to swing, causing it to swing 3 times as much as actually necessary. This concept is typically referred to as *"thrashing"*, after the rapid, undesirable movements that affected inserters make.
+The most natural way to reduce inserter thrashing is to simply produce more materials than you consume for a given production line. If you do this, machines will slowly fill up with input material as their outputs become saturated, meaning that inserters will only transfer items when space opens up in the destination, and when they do it will typically be a full stack. Colloquially, this idea of overbuilding inputs to guarantee item saturation is referred to as *"Backpressure"*.
 
-The most natural way to reduce inserter thrashing is to simply produce more materials than you consume for a given production line. If you do this, machines will slowly fill up with input material as their outputs become full, meaning that inserters will only transfer items when space opens up in the destination, typically when their hands are completely full of items. Colloquially, this idea of overbuilding item inputs to guarantee item saturation is referred to as *"Backpressure"*.
+![An example video of inserter thrashing on the left and backpressure on the right.](./img/backpressure-cropped.gif)
 
-![example video of thrashing on the left, and backpressure on the right](TODO)
+*The left output belt consumes more than the assembler can produce, while the right one generates surplus. The right inserter grabs multiple speed modules every swing, while the one on the left only picks up one per swing. For illustration purposes; not UPS optimal.*
 
-In addition to the benefits associated with keeping inserter swings efficient as possible, designing a production line in this manner also allows not only inserters to sleep as much as possible, but also all other machinery as well.
+Not only does creating backpressure ensure that inserter swings will contain maximum items, it also allows the entire production line to *"sleep"*, or enter a low UPS cost idle state. When machines and inserters are sleeping due to backpressure, they consume less UPS overall, meaning that a production line that has more, inactive machines might paradoxically perform better than a production line with the minimum amount of machines needed.
 
-"Back pressure is when supply always exceeds demand so that when an inserter picks stuff up it always gets max items"
+Backpressure is the preferred method for reducing inserter thrashing, as it adds no further complexity to the production line (and thus no performance overhead). Sometimes however, backpressure cannot be achieved by overproduction of previous steps, particularly when crafting times for certain items are especially long. The best example of this is in smelting recipes, which are both required in huge amounts alongside a slow crafting speed. It's very difficult to get backpressure here naturally (why?), and inserters by default will swing holding very few items.
 
-#### Inserter Clocking
+However, we can coerce inserters to behave as we want using the [Circuit Network](https://wiki.factorio.com/Circuit_network). By creating a [pulse generator](https://wiki.factorio.com/Tutorial:Combinator_tutorial#Pulse_generators), we can wait for a full stack's worth of items to be produced before manually sending a signal to the inserters telling them to swing. Adjusting the time between pulses allows one to configure the circuit for any recipe.
 
-Sometimes, backpressure cannot be achieved by overproduction of previous steps, particularly when crafting times for certain items are especially long. The best example of this is steel smelting, which is required in huge amounts combined with a slow crafting speed. It's very difficult to get backpressure here, and inserters by default will swing once for every 1 steel plate, swinging 12 times as often as optimal.
+![An example of regular swing mechanics vs. clocked inserters.](./img/clocking-cropped.gif)
 
-However, we can coerce inserters to wait until there is enough material in the smelter before making a swing by creating a [clock](TODO) which pulses an enable signal only when we know there is enough for a full stack swing. By adjusting the period of the clock, we can adjust the frequency in which the swing signal is set
+*The left side is default, and the right side is clocked. The left side output inserters swing far more than the ones on the right. For illustration purposes; not UPS optimal.*
 
-Adding a clock circuit to trigger inserters at appropriate intervals does incur an additional UPS cost, even when designed correctly to minimize it's effect. However, when used properly in the correct application, this additional should be less than the amount of UPS saved by the reduction of inserter swings. 
+Using this technique gains the benefits of backpressure without actually having to overproduce machines, but comes at the cost of a slight overhead from the clock circuit itself. In fact, this overhead from the clock can actually exceed the benefit from the reduction in inserter swings, so if you decide to use this method benchmarking your design is necessary. Smelting recipes and electronic circuits tend to see the most noticeable improvement from inserter clocking; other recipes don't typically see quite the volume necessary for inserter clocking to be more optimal than default behavior. As always, test and see for yourself, since minute differences in designs can have large impacts on UPS performance. For a more detailed guide on how to build inserter clocks and properly determine their period, see [here](https://www.reddit.com/r/technicalfactorio/comments/ju2ngg/inserter_clocking_tutorial/).
 
-Care must be taken though, as adding a circuit timer in this manner to adds an additional UPS cost not seen when compared to pure backpressure, and this cost on it's own may actually exceed the benefit of the reduction in inserter swings.
-
-Not all production steps benefit from inserter clocking.
+If you do clock inserters, prefer a single clock operating many machines/inserters simultaneously, as this reduces the overhead required as much as possible. Take care to design your clock properly so that the wire connected to the inserters only pulses (changes) once when you want the inserters to swing. If the inserter wire instead changes every tick, the game then has to check every condition on every connected inserter every tick, consuming far more UPS that could otherwise be saved. (For more detailed information on increasing circuit network performance, see the [Circuit Network section](TODO) below.)
 
 #### Solutions
 
@@ -122,10 +124,9 @@ Not all production steps benefit from inserter clocking.
 * If you don't want to use Direct Insertion, avoid moving items between logistics types. If you want to use belts, use *only* belts; if you want to use trains, use *only* trains. Avoid moving items from trains onto belts, or from belts onto trains; doing this is essentially redundant. You can use bots as well, but read their section below for caveats.
 * Always use the fastest inserter possible with the highest stack size possible, *if* it will reduce the total amount of time that the inserter will remain active.
 * Always employ backpressure wherever possible. This allows for not just inserters, but *all* machinery to sleep as frequently as possible, improving UPS. In addition, this has the benefit of making inserters pick up their maximum stack size of items when swinging, forcing them to use as few swings as possible to transfer the amount of items needed.
-* [Inserter clocking](https://www.reddit.com/r/technicalfactorio/comments/ju2ngg/inserter_clocking_tutorial/) can be used to force inserters to pick up their maximum stack size in circumstances where natural backpressure is infeasible. Benchmarks must be made to verify that the additional overhead of the timing circuit does not exceed the UPS gain from fewer inserter swings. Users should also be careful when building the clocks themselves, as having them improperly constructed can exacerbate their UPS overhead.
-* Because inserters are the most important design constraint in regards to a base's final UPS, many of the subsequent optimization strategies in following sections will be entirely just to reduce the amount of time inserters are active. This should drive home exactly how important inserters are when optimizing for UPS in Factorio.
+* Inserter clocking can be used to force inserters to pick up their maximum stack size in circumstances where natural backpressure is infeasible. Benchmarks must be made to verify that the additional overhead of the timing circuit does not exceed the UPS gain from fewer inserter swings. Users should also be careful when building the clocks themselves, as having them improperly constructed can exacerbate their UPS overhead.
 
-### 4. Fluid Networks
+### 5. Fluid Networks
 
 (TODO. This subject will likely change a lot with the new fluid mechanics. However, the rule of having as few fluid carrying entities as possible will likely still hold true.)
 
@@ -134,11 +135,11 @@ Not all production steps benefit from inserter clocking.
 * Use as few fluid network entities as possible.
 * Producing fluid on-site (particularly water with offshore pumps) is almost always better than attempting to transport it over any distance.
 
-### 5. Power Generation
+### 6. Power Generation
 
-The most UPS efficient method for generating power is with solar panels and accumulators, and by a wide margin. Factorio is able to optimize the solar panels and accumulators together into one massive entity, whereupon it calculates power generated in constant time as `brightness of sun * power output of solar panel * number of solar panels`. Accumulators are similarly optimized, since they trend towards having the same charge and discharge cycles naturally some time after being placed, meaning that as time progresses the complexity of accumulator calculations is also `O(1)`. The only drawback to using solar panels in a factory is the massive amount of space and time that they require to generate enough power for large bases, but this is a gameplay consideration, not a UPS one.
+The most UPS efficient method for generating power is with solar panels and accumulators, and by a wide margin. Factorio is able to optimize the solar panels and accumulators together into one massive entity, whereupon it calculates power generated in constant time as `brightness of sun * power output of solar panel * number of solar panels`. Accumulators are similarly optimized, since they trend towards having the same charge and discharge cycles naturally some time after being placed, meaning that as time progresses the complexity of accumulator calculations is also `O(1)`. This means that theoretically their power production can be scaled infinitely with no additional UPS cost, only being limited by your save size and system memory. The only drawback to using solar panels in a factory is the massive amount of resources, space, and time that they require to generate enough power for large bases, but this is a gameplay consideration, not a UPS one.
 
-Reactors, by comparison, are much more involved. They have both heat and fluid networks which are both complex and expensive to simulate. For perspective, the time cost of just the reactors themselves is the sum of 4 different entity categories (`Boiler`,`Reactor`,`Heat Manager`, and `Generator`), whereas solar and accumulators only get one apiece. In addition, reactors need a whole suite of supporting infrastructure to remain operational; uranium miners, sulfuric acid production, centrifuges, fuel assemblers, waste processing, and of course the logistics to transport all the items and fluids necessary to support this production chain. Solar panels have no such runtime requirements once they're constructed, and thus no additional UPS cost whatsoever.
+Reactors, by comparison, are much more involved. They have both heat and fluid networks which are both complex and expensive to simulate. For perspective, the time cost of just the reactors themselves is the sum of 4 different entity categories (`Boiler`,`Reactor`,`Heat Manager`, and `Generator`). In addition, reactors need a whole suite of supporting infrastructure to remain operational; uranium miners, sulfuric acid production, centrifuges, fuel assemblers, waste processing, and of course the logistics to transport all the items and fluids necessary to support this production chain. Solar panels have no such runtime requirements once they're constructed, and thus no additional UPS cost whatsoever.
 
 Any power setup that boils steam for power will almost certainly be more complex to run and thus less UPS performant than solar panels. However, among said boiler setups, the ones with the highest energy density are always the best option for UPS, as they require the fewest number of entities to produce a particular power demand, reducing their simulation complexity and the infrastructure needed to support them. This means that fusion reactors are better than nuclear reactors, and that both of those are far better than steam engines.
 
@@ -152,12 +153,11 @@ Any power setup that boils steam for power will almost certainly be more complex
 * If you cannot/do not want to use solar panels, then power setups with the highest energy density should always be preferred.
 * If you cannot/do not want to use solar panels, keep your boiler setups (of whatever kind) as simple as possible. Avoid using more heat pipes on nuclear reactors than necessary. Avoid storing water or steam in tanks, or sending them through elaborate pipe networks prior to discharging them through turbines.
 
-### 6. Electric Networks
+### 7. Electric Networks
 
-TODO: rephrase
-When a base has excess power production, Factorio only has to calculate the corresponding energy drain of all connected electrical entities, as the active speed of all entities is capped to their maximum. However, when power supply dips even slightly below complete satisfaction, the game now has to calculate the new speed for *every* single connected entity per tick. This additional cost usually comes in the form of a large lag spike that appears whenever power dips below minimum satisfaction. Avoid this to ensure smooth performance.
+When a base has excess power production, the active speed of all entities are constant - they are simply capped to their maximum speed, which does not fluctuate with surplus power.However, when power supply dips even slightly below complete satisfaction, the speed at which machines operate now has to be dynamically calculated as some fraction of their original speed; and it has to be done for every single active entity in the network, for every tick power is insufficient. This additional cost usually comes in the form of a large lag spike that appears whenever power dips below minimum satisfaction. Avoid this to ensure smooth performance.
 
-Expanding/merging/separating power networks are relatively expensive operations, though typically they only happen during construction instead of during a base's operation. The one exception to this is [Power Switches](https://wiki.factorio.com/Power_switch), which dynamically connect and disconnect electrical networks based on some logistic or circuit condition. Frequently doing this on very large networks will start to incur a noticeable performance cost. If using a power switch for an emergency power setup and your circuit "thrashes" (quickly enables and disables itself when approaching it's configured threshold) then consider creating a [latch](https://wiki.factorio.com/Tutorial:Circuit_network_cookbook#Latches) to govern it instead.
+Expanding/merging/separating power networks are relatively expensive operations, though typically they only happen during construction instead of during a base's operation. The one exception to this is [Power Switches](https://wiki.factorio.com/Power_switch), which dynamically connect and disconnect electrical networks based on some logistic or circuit condition. Frequently doing this on very large networks will start to incur a noticeable performance cost. If using a power switch for an emergency power setup and your circuit "thrashes" when approaching it's configured threshold, then consider creating a [latch](https://wiki.factorio.com/Tutorial:Circuit_network_cookbook#Latches) to govern it instead.
 
 Electric networks in Factorio are not multithreaded [[1]](https://mulark.github.io/tests/test-000013/test-000013.html), which means all entity energy drain and production calculations have to be done per entity per electric network they are a part of. In most Factorio bases, the entire base lies on one single connected electric network, so this is imperceptible. However, bases with very many (>100) isolated electric networks can start to incur a noticeable performance cost, and if such networks are superfluous, offer a quick avenue for optimization.
 
@@ -168,9 +168,9 @@ Electric networks in Factorio are not multithreaded [[1]](https://mulark.github.
 * Combine many small electric energy networks into one large one, whenever possible. Remove any unnecessary isolated electric networks where they occur.
 * If two separate electric networks must exist, reduce the number of entities that lie in both networks at the same time. Entities that do this have to share their power demand and consumption, meaning that they are processed `N` times for the `N` networks they overlap.
 
-### 7. Bot Networks
+### 8. Bot Networks
 
-Between the "primary" logistics options (belts, trains, and bots) bots are the worst option for bulk transport, which is almost all of the logistics of a large scale base. Bots excel in constructing small quantities of complex items and delivering items to players, but for large scale transport their tiny relative cargo size means the quantity of bots required is exceedingly high, even with many bot-speed technologies researched. The only vanilla recipe for which it has been shown that bots are at least as good as the other logistical options is when delivering satellites to rocket silos, due to the very low throughput required.
+Between the "primary" logistics options (belts, trains, and bots) bots are the worst option for bulk transport, which is almost all of the logistics of a large scale base. Bots excel in transporting small quantities of complex items and delivering items to players, but for large scale transport their tiny relative cargo size means the quantity of bots required is prohibitively high, even with many bot-speed technologies researched. The only vanilla recipe for which it has been shown that bots are at least as good as the other logistical options is when delivering satellites to rocket silos, due to the very low throughput required.
 
 If bots are desired regardless, reduce bot network footprint as much as possible, in order to reduce the total distanced traveled between robots. This is desirable outside of UPS anyway, as it reduces energy consumption and requires less recharging, resulting in both fewer roboports and fewer robots in flight.
 
@@ -180,7 +180,7 @@ If bots are desired regardless, reduce bot network footprint as much as possible
 * Avoid having large robot networks. Robot cost is directly proportional to the amount of time spent flying from point to point. Reducing the distance between destinations not only reduces the amount of time robots spend flying (and thus their energy use), but it also reduces the total amount of robots you need active to supply a given transfer rate, both of which improves UPS. [[1]](https://mulark.github.io/tests/test-000201/test-000201.html)
 * Remove legacy roboports that are no longer used at all, *as empty, idle roboports do still consume UPS*. A good example of this is that players will typically build roboports into their solar arrays to allow them to be automatically constructed, but will neglect to remove the roboports once the array is fully constructed and robots are no longer need to travel there.
 
-### Trains
+### 9. Trains
 
 At megabase scale, trains themselves can also be a considerable UPS cost. Trains need to pathfind through the rail network, which is likely large and interconnected, providing many possible avenues to the destination which have to be compared. Further, trains perform collision checks at all times, and so they always have some overhead when they are moving from station to station. These collision checks are performed per wagon, meaning that the overall size of the train influences it's UPS cost, not just the amount of different trains pathfinding through the network. Trains with more wait conditions per stop also perform worse on average than trains with less wait conditions per stop.
 
@@ -188,7 +188,7 @@ Different categories of train stop conditions themselves also incur different UP
 
 Even if complex schedule conditions like "Item Count" are absolutely necessary, it may still be possible to reduce their UPS impact (under certain circumstances). For example, suppose you need to check a complex assortment of items at a particular station, but you know that it will take at least 3 minutes before the stop can reasonably be expected to  load those items. What you can do in this case is prepend a comparatively cheap "Time Passed" condition, ANDed with the rest of your wait conditions:
 
-![img](example)
+![An example of using wait-condition short circuiting.](./img/train-stop-prepend.png)
 
 Factorio implements [short-circuiting](https://en.wikipedia.org/wiki/Short-circuit_evaluation) with wait conditions, which means that the game will check "Time Passed" first, and will only evaluate the following expensive checks if the first condition is true. Hence, instead of checking the set of expensive conditions every single tick while the train is stopped at that station, if the conditions are met by the time 3 minutes have passed, the game will only have to check the expensive conditions exactly once. [[2]](https://mulark.github.io/tests/test-000030/test-000030.html)
 
@@ -205,6 +205,8 @@ Factorio implements [short-circuiting](https://en.wikipedia.org/wiki/Short-circu
 
 Firstly and most simply, avoid the use of splitters if possible. Splitters are rarely actually necessary, depending on the design goals. Consider a simple belt example, where 4 fully saturated blue belts of iron plates are sent to 4 steel smelting columns:
 
+The use cases for splitters disappear with the advent of other UPS optimization strategies.
+
 ![example showing balanced](TODO)
 ![example optimized for UPS efficiency](TODO)
 
@@ -216,17 +218,32 @@ Here, the balancer in the middle is completely unnecessary. Each origin column p
 Here
 
 
-### Belts
+### 10. Belts
+
+Always prefer using the highest belt speed available. Faster belts allow you to transfer your desired amount of items with the fewest belts possible, or in other words allow you to transport the maximum number of items possible per a given number of belts. In addition, faster belts allow inserters to grab items more quickly than slower belts, reducing the average inserter swing time, improving UPS significantly.
+
+Avoid using splitters.
+The use cases for splitters disappear with the advent of other UPS optimization strategies.
+Unnecessary splitters should also be removed wherever possible, as they cost more UPS than regular belts and the uses for them simply disappear in the higher echelons of late-game UPS optimization.
+
+On a similar note, always keep input belts compressed. This is **NOT** because belts themselves are more UPS friendly when compressed; in isolation there is functionally no difference in performance between a compressed and uncompressed belt. [[1]](TODO) Rather, compressed belts reduce inserter swing time further, and come as a natural result of backpressure (alongside backpressures other benefits).
+
+(TODO: section on chest handoffs?)
+
+(TODO: rephrase, this is not quite correct; having 2 lanes of items is fine as long as the preferred lane is compressed, if not then the inserter will "double-dip" into both lanes and take more time.)
+When inserters pick up an ingredient from a belt, prefer having that ingredient in 1 lane rather than both lanes on a belt. An inserter will normally pick up from An inserter when presented with two lanes of the item it wants may alternate grabbing between the two, taking more time to swing and remaining active for longer. If you've built your production block around one full belt of input materials, it is actually more UPS efficient to run two entirely different belts with one lane filled filled in either than one belt with both lanes filled. [[1]](https://www.reddit.com/r/technicalfactorio/comments/nwu7ky/ups_efficient_double_sided_belts_same_item_on/)
+
+There seems to be very little difference in performance between only near lane and only far lane.
+The difference in UPS performance between 1 near lane and 1 far lane is marginal, but seems to prefer the near lane. (Right?)
+
+https://www.reddit.com/r/technicalfactorio/comments/nwu7ky/ups_efficient_double_sided_belts_same_item_on/
+
+
+Backpressure is just as important as belts.
 
 [Since 0.16](https://www.factorio.com/blog/post/fff-176), belt mechanics changed to follow an optimized simulation scheme which is much more efficient than naively moving every item on every belt simultaneously. As a result, belts in modern Factorio are very well optimized already; almost all of the optimizations regarding belts are actually optimizations involving how inserters interact with belts instead of the belts themselves.
 
-In order to reduce inserter active time, prefer using the highest tier belt whenever possible. The slower the belt, the longer it takes for an inserter to pick up items its full stack size of items, meaning that the inserter remains active for longer than necessary.
-
-When picking up from a belt, prefer having a single item in 1 lane rather than 2 lanes on a belt. An inserter when presented with two lanes of the item it wants will alternate grabbing between the two, taking more time to swing and remaining active for longer. If you've built your production block around one full belt of input materials, it is actually more UPS efficient to run two entirely different belts with one lane filled filled in either than one belt with both lanes filled. [[1]](https://www.reddit.com/r/technicalfactorio/comments/nwu7ky/ups_efficient_double_sided_belts_same_item_on/)
-
-There seems to be very little difference in performance between only near lane and only far lane.
-
-https://www.reddit.com/r/technicalfactorio/comments/nwu7ky/ups_efficient_double_sided_belts_same_item_on/
+There seems to be a common myth that compressed belts are better for UPS than non-compressed belts. This is true, but only in relation to backpressure, rather than the actual performance cost of belts themselves. 100,000 belt segments were tested, both fully compressed and partially compressed, and the difference between the performance was measured in the order of fractions of a percent. The real reason that compressed belts are better for UPS is that it reduces the amount of time inserters have to take when picking up items from a belt, and guarantees that they will always pick up their max stack size per swing. If you have backpressure, your belts will always be compressed by definition, meaning that your inserters will be as fast and efficient as possible.
 
 Fully compressed belts are beneficial for UPS, **but only in relation to inserters**. *There is no significant difference b*
 
@@ -234,7 +251,7 @@ Fully compressed belts in isolation are no more UPS-friendly than partially comp
 If you have backpressure, your belts will always be compressed by definition, meaning that your inserter pickup times will be as small as possible.
 If a belt is sufficiently empty, it can even cause the inserter to swing before picking up it's full stack size count of items, drastically reducing it's swing efficiency.
 
-It is commonly believed that keeping belts compressed is beneficial for UPS - but while this may have been true for versions of Factorio before 1.0, it is [no longer the case](TODO). There is no meaningful difference in UPS between a partially compressed belt or a fully compressed belt. Similar myths about underground belts being more UPS performant than regular ones have also been disproved on modern Factorio versions. On their own, there is no noticable difference between belt compression levels.
+It is commonly believed that keeping belts compressed is beneficial for UPS - but while this may have been true for versions of Factorio before 1.0, it is [no longer the case](TODO). There is no meaningful difference in UPS between a partially compressed belt or a fully compressed belt. Similar myths about underground belts being more UPS performant than regular ones have also been disproved on modern Factorio versions. On their own, there is no noticeable difference between belt compression levels.
 
 *However*, if a suboptimal belt saturation keeps inserters awake for longer than necessary, then this will have a far greater negative effect on UPS than belt compression. In this way, fully compressed belts *are* better for UPS, but only because they reduce inserter swing time. In a pure vacuum, belt compression doesn't seem to have an impact more than a few microseconds on average.
 
@@ -247,22 +264,20 @@ The final component for optimizing a factory's belts involves manipulating it's 
 
 - Items on belts follow what are termed "transport lines". Transport lines are typically multiple tiles long, but "break" (split) under certain circumstances to keep individual transport lines within a manageable set of lengths.
 - You can view transport lines using the `show-transport-line` debug option. The lines have arrows indicating their direction, and are color coded based on their state.
-- Transport line breaks are always created by splitters, underground belts, a change in belt speed (blue belt to red belt, for example), or a circuit/logistics condition which can stop the belt from moving. In addition, a transport line is always split if it is more than 200 tiles long.
-- Transport line breaks can be dynamically caused by inserters picking up or putting down items onto a belt and during sideloading. After certain periods of inactivity, these dynamic line breaks can be joined back into one large one, known as "remerging".
+- Transport line breaks are *always* created by splitters, underground belts, a change in belt speed (blue belt to red belt, for example), or a circuit/logistics condition which can stop the belt from moving. In addition, a transport line is always split if it is more than 200 tiles long.
+- Transport line breaks can be *dynamically* caused by inserters picking up or putting down items onto a belt and during sideloading. After certain periods of inactivity, these dynamic line breaks can be joined back into one large one, known as "remerging".
 - The UPS cost of dynamic splitting and remerging of transport lines caused by inserters and sideloads is comparatively expensive.
-- Placing upstream inserters close to transport line breaks (less than 3 tiles away) avoids creating a new break, avoiding the expensive splitting and remerge logic mentioned above. Additionally, the closer the inserter is placed to the break, the less amount of time the game has to "search" that transport line to find the items it wants. By using underground belts, you can specify a transport line break in a particular spot to take advantage of these properties.
+- Placing upstream inserters close to transport line breaks (less than 3 tiles away) prevents creating a new break, avoiding the expensive splitting and remerge logic mentioned above. Additionally, the closer the inserter is placed to the break, the less amount of time the game has to "search" that transport line to find the items it wants. By using underground belts, you can specify a transport line break in a particular spot to take advantage of these properties.
 - Even better performance can be achieved by having multiple inserters share the same transport line segment, keeping them all close to an existing transport line break. This reduces the total number of transport lines along a belt that the game has to simulate, which offers slightly better results than forcing a new line break as close to each inserter as possible.
 
-It should be mentioned however that the transport line optimization techniques mentioned here are very minute in effect, and very complex to do properly. Highly wasteful transport line management will have an almost imperceptible cost for the average megabase, let alone a regular playthrough. Such techniques are only typically employed when every single margin of performance is necessary.
+It should be mentioned however that the transport line optimization techniques mentioned here are very minute in effect, and very complex to do properly. Highly wasteful transport line management will have an almost imperceptible cost for the average megabase, let alone the regular playthrough. Such techniques are only typically employed when every single margin of performance is desired, and since the margins are so narrow between comparable designs, benchmarks at this stage are a must.
 
 #### Solutions
 
-* Avoid using splitters, if possible. If you need a certain amount of items on a belt, then put exactly those items on the belt in the first place. Most balancing operations can be substituted with overproduction and sideloading, which have additional positive UPS effect. Train car balancing can also be similarly prevented by keeping input lines balanced from the get-go.
-* Always use the fastest belt speed possible. The faster the belt, the quicker an inserter can pick up it's stack size worth of items and transfer it, reducing the amount of time that inserter is active.
-* When picking up items from a belt, prefer having inserters pick up only from one side of the belt; picking up from both sides at the same time slows them down, keeps them active for longer, and reduces UPS. This can be achieved by either putting 2 different items on either lane, or by only using one lane of the entire belt.
-* When picking up items from a belt, try to ensure that the belt lane that the inserter is picking up from is fully compressed. This allows the inserter to grab the contents of the belt as quickly as possible, reducing active time. This can be achieved by utilizing backpressure as defined in the inserter section above.
-* If you want to use a full belt of a single item as input, [use a sideload halfway down to keep an inserter's preferred lane compressed](https://www.reddit.com/r/technicalfactorio/comments/nwu7ky/ups_efficient_double_sided_belts_same_item_on/).
-* When designing your production blocks, try to have as few transport lines as possible. Try to put as many inserters as close to an existing break as possible to prevent dynamic splitting and remerging of transport lines. Manipulate where exactly transport line breaks are placed using underground belts to have them as close to your inserters as possible to reduce item search time.
+* Avoid using splitters, if possible. If you need a certain amount of items on a belt, then put exactly those items on the belt in the first place. Most balancing operations can be substituted with overproduction and sideloading, which have additional positive UPS effect. Train car balancing can also be similarly circumvented by keeping input lines balanced from the get-go.
+* Always use the fastest belt speed possible. The faster the belt, the quicker an inserter can pick up it's stack size worth of items and transfer it, reducing the amount of time that inserter is active. Faster belts also mean fewer belts to transport the same amount of items.
+* When picking up items from a belt, keep belts compressed as much as possible to reduce active inserter time. Prefer having inserters pick up only from one side of the belt; picking up from both sides at the same time slows them down, keeps them active for longer, and thus reduces UPS. You can ensure this by either putting 2 different items on either lane, or by only using one lane of the entire belt.
+* When designing your production blocks, try to have as few transport lines as possible. Try to put as many inserters as close to an existing transport line break as possible to prevent dynamic splitting and remerging of transport lines. Manipulate where exactly transport line breaks are placed using underground belts to have them as close to your inserters as possible to reduce item search time.
 
 ## Other Potential Causes of Lowered UPS
 
@@ -288,6 +303,6 @@ Circuit network cost per game tick can be roughly intuited as:
 * `the number of active circuit networks in the save`.
 
 Having
-Having a disproportionately large amount of any of these categories (or all in conjunction) will likely see a performance cost. It is better to send a single signal for 1 tick as opposed to every tick, and it's bette
+Having a disproportionately large amount of any of these categories (or all in conjunction) will likely see a performance cost. It is better to send a single signal for 1 tick as opposed to every tick, and it's better
 
 (TODO: needs expansion)
